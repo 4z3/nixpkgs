@@ -159,6 +159,7 @@
   ./services/mail/postfix.nix
   ./services/mail/spamassassin.nix
   #./services/misc/autofs.nix
+  ./services/misc/cgserver.nix
   ./services/misc/cpuminer-cryptonight.nix
   ./services/misc/cgminer.nix
   ./services/misc/dictd.nix

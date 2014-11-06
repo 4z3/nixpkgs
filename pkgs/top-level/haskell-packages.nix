@@ -3224,6 +3224,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   };
   cabalInstall = self.cabalInstall_1_20_0_3;
 
+  cgserver = callPackage ../os-specific/linux/cgserver {};
+
   codex = callPackage ../development/tools/haskell/codex {};
 
   commandQq = callPackage ../development/libraries/haskell/command-qq {};
