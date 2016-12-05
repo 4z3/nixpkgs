@@ -314,6 +314,17 @@ in rec {
       '';
     };
 
+    keepStoppedIfChanged = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        If set to <literal>true</literal>, a changed unit that has been stopped
+        due to <option>stopIfChanged</option> won't be started again.  This is
+        primarily useful to prevent long-running oneshot units that get started
+        by timers from delaying system activation.
+      '';
+    };
+
     startAt = mkOption {
       type = with types; either str (listOf str);
       default = [];

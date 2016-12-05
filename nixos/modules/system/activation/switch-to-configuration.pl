@@ -238,11 +238,7 @@ while (my ($unit, $state) = each %{$activePrev}) {
                             }
                         }
 
-                        # If the unit is not socket-activated, record
-                        # that this unit needs to be started below.
-                        # We write this to a file to ensure that the
-                        # service gets restarted if we're interrupted.
-                        if (!$socketActivated) {
+                        if (!$socketActivated && !boolIsTrue($unitInfo->{'X-KeepStoppedIfChanged'} // "no")) {
                             $unitsToStart{$unit} = 1;
                             recordUnit($startListFile, $unit);
                         }

@@ -325,6 +325,7 @@ let
             X-RestartIfChanged=false
           '' else ""}
           ${optionalString (!def.stopIfChanged) "X-StopIfChanged=false"}
+          ${optionalString def.keepStoppedIfChanged "X-KeepStoppedIfChanged=true"}
           ${attrsToSection def.serviceConfig}
         '';
     };
