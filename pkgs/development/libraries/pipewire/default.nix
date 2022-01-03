@@ -143,6 +143,7 @@ let
       "-Dlibpulse=${mesonEnable pulseTunnelSupport}"
       "-Davahi=${mesonEnable zeroconfSupport}"
       "-Dgstreamer=${mesonEnable gstreamerSupport}"
+      "-Dsystemd-system-service=enabled"
       "-Dffmpeg=${mesonEnable ffmpegSupport}"
       "-Dbluez5=${mesonEnable bluezSupport}"
       "-Dbluez5-backend-hsp-native=${mesonEnable nativeHspSupport}"
@@ -164,6 +165,11 @@ let
       patchShebangs source/doc/input-filter.sh
       patchShebangs source/doc/input-filter-h.sh
       patchShebangs source/spa/tests/gen-cpp-test.py
+
+      # Don't try to put system service units into pkgs.systemd.
+      sed -Ei "
+        s@^(systemd_system_services_dir).*@\\1 = '$out/lib/systemd/system'@
+      " source/src/daemon/systemd/system/meson.build
     '';
 
     postInstall = ''
