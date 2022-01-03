@@ -49,7 +49,7 @@ in {
 
       package = mkOption {
         type = types.package;
-        default = pkgs.pipewire;
+        default = pkgs.pipewire-with-system-services;
         defaultText = literalExpression "pkgs.pipewire";
         description = ''
           The pipewire derivation to use.
