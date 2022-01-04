@@ -129,9 +129,9 @@ in {
         default = false;
         description = ''
           If true, a system-wide PipeWire service and socket is enabled
-          allowing all users in the "audio" group to use it simultaneously.
-          If false, then user units are used instead, restricting access
-          to only one user.
+          allowing all users in the "pipewire" group to use it simultaneously.
+          If false, then user units are used instead, restricting access to
+          only one user.
 
           Enabling system-wide PipeWire is however not recommended and disabled
           by default according to
@@ -177,14 +177,6 @@ in {
     systemd.sockets.pipewire.wantedBy = lib.mkIf cfg.socketActivation [ "sockets.target" ];
     systemd.user.sockets.pipewire.wantedBy = lib.mkIf cfg.socketActivation [ "sockets.target" ];
     systemd.user.sockets.pipewire-pulse.wantedBy = lib.mkIf (cfg.socketActivation && cfg.pulse.enable) ["sockets.target"];
-
-    # Override the socket unit provided by the pipewire package, which sets
-    # this to "pipewire".  This is done mainly for mimicking PulseAudio's
-    # system-wide behavior, which in turn allows switching between system-wide
-    # PulseAudio and system-wide PipeWire without the need for modifying
-    # users's (extra-) groups, which in turn allows switching without having to
-    # restart user sessions.
-    systemd.sockets.pipewire.socketConfig.SocketGroup = "audio";
 
     services.udev.packages = [ cfg.package ];
 
@@ -232,11 +224,12 @@ in {
     users = lib.mkIf cfg.systemWide {
       users.pipewire = {
         uid = config.ids.uids.pipewire;
-        group = "audio";
+        group = "pipewire";
         extraGroups = lib.optional config.security.rtkit.enable "rtkit";
         description = "Pipewire system service user";
         isSystemUser = true;
       };
+      groups.pipewire.gid = config.ids.gids.pipewire;
     };
 
     # https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/464#note_723554

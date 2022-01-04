@@ -657,7 +657,7 @@ in
       hqplayer = 319;
       moonraker = 320;
       distcc = 321;
-      #pipewire = 322; # unused, pipewire uses the audio group
+      pipewire = 322;
 
       # When adding a gid, make sure it doesn't match an existing
       # uid. Users and groups with the same name should have equal
