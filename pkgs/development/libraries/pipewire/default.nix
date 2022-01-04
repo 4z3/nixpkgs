@@ -1,6 +1,7 @@
 { stdenv
 , lib
 , fetchFromGitLab
+, fetchurl
 , removeReferencesTo
 , python3
 , meson
@@ -96,6 +97,15 @@ let
       ./0090-pipewire-config-template-paths.patch
       # Place SPA data files in lib output to avoid dependency cycles
       ./0095-spa-data-dir.patch
+      # Fix attempt to put system service units into pkgs.systemd.
+      (fetchurl {
+        url = "https://gitlab.freedesktop.org/pipewire/pipewire/-/commit/b666edde787b167c6e19b9356257d48007357acc.diff";
+        sha256 = "0gcy9sa6cvfi654fd63wsk3bja7yh283lxs9i8bn58qza4pjh87c";
+      })
+      (fetchurl {
+        url = "https://gitlab.freedesktop.org/pipewire/pipewire/-/commit/5054b48c9de655b4b48f7c801cb305d9eb122520.diff";
+        sha256 = "1fcapcxqnvf9wpy5f9y64j0ah73j1xhq9n9lqlcsmbl2f1fp8mia";
+      })
     ];
 
     nativeBuildInputs = [
@@ -165,11 +175,6 @@ let
       patchShebangs source/doc/input-filter.sh
       patchShebangs source/doc/input-filter-h.sh
       patchShebangs source/spa/tests/gen-cpp-test.py
-
-      # Don't try to put system service units into pkgs.systemd.
-      sed -Ei "
-        s@^(systemd_system_services_dir).*@\\1 = '$out/lib/systemd/system'@
-      " source/src/daemon/systemd/system/meson.build
     '';
 
     postInstall = ''

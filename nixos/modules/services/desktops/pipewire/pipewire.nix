@@ -124,8 +124,8 @@ in {
         enable = mkEnableOption "PulseAudio server emulation";
       };
 
-      systemWide = mkOption {
-        type = types.bool;
+      systemWide = lib.mkOption {
+        type = lib.types.bool;
         default = false;
         description = ''
           If true, a system-wide PipeWire service and socket is enabled
@@ -229,11 +229,11 @@ in {
     environment.sessionVariables.LD_LIBRARY_PATH =
       lib.optional cfg.jack.enable "${cfg.package.jack}/lib";
 
-    users = mkIf cfg.systemWide {
+    users = lib.mkIf cfg.systemWide {
       users.pipewire = {
         uid = config.ids.uids.pipewire;
         group = "audio";
-        extraGroups = optional config.security.rtkit.enable "rtkit";
+        extraGroups = lib.optional config.security.rtkit.enable "rtkit";
         description = "Pipewire system service user";
         isSystemUser = true;
       };

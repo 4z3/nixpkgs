@@ -1,6 +1,7 @@
 { stdenv
 , lib
 , fetchFromGitLab
+, fetchurl
 , meson
 , ninja
 , pkg-config
@@ -30,6 +31,19 @@ let
       sha256 = "sha256-e537gTkiNYMz2YJrOff/MXYWVDgHZDkqkSn8Qh+7Wr4=";
     };
 
+    patches = [
+      # Fix `ERROR: Tried to access unknown option "session-managers".`
+      (fetchurl {
+        url = "https://gitlab.freedesktop.org/pipewire/media-session/-/commit/dfa740175c83e1cd0d815ad423f90872de566437.diff";
+        sha256 = "1bsjlviswxjv2ccdic7a1vjfclln0w5i6yl3rxky0vnp9apnz3g2";
+      })
+      # Fix attempt to put system service units into pkgs.systemd.
+      (fetchurl {
+        url = "https://gitlab.freedesktop.org/pipewire/media-session/-/commit/2ff6b0baec7325dde229013b9d37c93f8bc7edee.diff";
+        sha256 = "17dil2pjdid5pzvfzi1bk517iyln2yf1nvalhzyraxrb1fg707yn";
+      })
+    ];
+
     nativeBuildInputs = [
       doxygen
       graphviz
@@ -56,24 +70,6 @@ let
     postUnpack = ''
       patchShebangs source/doc/input-filter-h.sh
       patchShebangs source/doc/input-filter.sh
-
-      # Don't try to put system service units into pkgs.systemd.
-      # The definition streches across two lines, that's why we delete the
-      # second one.
-      sed -Ei "
-        s@^(systemd_system_services_dir).*@\\1 = '$out/lib/systemd/system'@
-        /^\s+pkgconfig_define:/d
-      " source/systemd/system/meson.build
-
-      # Build pipewire-media-session.service unconditionally.
-      # Without this, the build will fail with:
-      #   ERROR: Tried to access unknown option "session-managers".
-      # pipewire-media-session doesn't have a "session-managers" option so
-      # it seems as if it wans to access pkgs.pipewire, which does have it
-      # and sets it to the empty string.
-      sed -Ei "
-        s@if get_option.*@if true@
-      " source/systemd/system/meson.build
     '';
 
     postInstall = ''
