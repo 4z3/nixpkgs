@@ -225,7 +225,10 @@ in {
       users.pipewire = {
         uid = config.ids.uids.pipewire;
         group = "pipewire";
-        extraGroups = lib.optional config.security.rtkit.enable "rtkit";
+        extraGroups = [
+          "audio"
+          "video"
+        ] ++ lib.optional config.security.rtkit.enable "rtkit";
         description = "Pipewire system service user";
         isSystemUser = true;
       };
