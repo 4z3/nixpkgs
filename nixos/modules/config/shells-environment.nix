@@ -26,7 +26,7 @@ let
       ];
 
       exportVariables = lib.mapAttrsToList (
-        n: v: ''export ${n}="${lib.concatStringsSep ":" v}"''
+        n: v: ''export ${n}=${lib.concatMapStringsSep ":" lib.escapeShellArg v}''
       ) allVariables;
     in
     lib.concatStringsSep "\n" exportVariables;
