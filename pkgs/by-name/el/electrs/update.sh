@@ -1,10 +1,10 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p coreutils curl jq git gnupg common-updater-scripts
+#!nix-shell -i bash -p coreutils curl jq git common-updater-scripts
 set -euo pipefail
 
 trap 'echo "Error at ${BASH_SOURCE[0]}:$LINENO"' ERR
 
-# Fetch latest release, GPG-verify the tag, update derivation
+# Fetch latest release, verify the tag, update derivation
 
 scriptDir=$(cd "${BASH_SOURCE[0]%/*}" && pwd)
 nixpkgs=$(realpath "$scriptDir"/../../../..)
@@ -18,17 +18,20 @@ if [[ $version == $oldVersion ]]; then
 fi
 echo "New version: $version"
 
-tmpdir=$(mktemp -d /tmp/electrs-verify-gpg.XXX)
+tmpdir=$(mktemp -d /tmp/electrs-verify.XXX)
 repo=$tmpdir/repo
 trap "rm -rf $tmpdir" EXIT
 
 git clone --depth 1 --branch v${version} -c advice.detachedHead=false https://github.com/romanz/electrs $repo
 git -C $repo checkout tags/v${version}
 
-export GNUPGHOME=$tmpdir
 echo
-echo "Fetching romanz's key"
-gpg --keyserver hkps://keys.openpgp.org --recv-keys 15c8c3574ae4f1e25f3f35c587cae5fa46917cbb 2> /dev/null
+echo 'Setting up SSH allowed signers verification'
+signers_file=$tmpdir/allowed_signers
+echo 'git@romanzey.de ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAZVq/3fgkildjN/MqEnhrP5550sDpFzGxMwevr5q/9w' > "$signers_file"
+git -C $repo config gpg.format ssh
+git -C $repo config gpg.ssh.allowedSignersFile "$signers_file"
+
 echo
 echo "Verifying commit"
 git -C $repo verify-tag v${version}
